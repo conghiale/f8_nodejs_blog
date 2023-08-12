@@ -1,10 +1,20 @@
 const express = require('express')
 const {create} = require('express-handlebars')
+const routes = require('./routes')
 const path = require('path')
 const app = express()
 const port = 3000
 
+// config static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// config to get data from form with method POST
+app.use(express.urlencoded({
+    extended: true
+}))
+
+// config to get data from client send data with method POST and type Json
+app.use(express.json())
 
 // config handlers
 const hbs = create({
@@ -16,11 +26,10 @@ const hbs = create({
 
 // templates engine
 app.engine('hbs', hbs.engine)
-
 app.set('view engine', 'hbs')
 app.set('views', path.join(__dirname, 'resources/views'))
 
-app.get('/', (req, res) => res.render('home'))
-app.get('/news', (req, res) => res.render('news'))
+// Routes init
+routes(app)
 
 app.listen(port, () => console.log(`listening at http://localhost:${port}`))
