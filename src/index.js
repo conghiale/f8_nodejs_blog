@@ -5,6 +5,10 @@ const path = require('path')
 const app = express()
 const port = 3000
 
+// connect db
+const db = require('./config/db')
+db.connect()
+
 // config static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -16,7 +20,7 @@ app.use(express.urlencoded({
 // config to get data from client send data with method POST and type Json
 app.use(express.json())
 
-// config handlers
+// config handlebars
 const hbs = create({
     layoutsDir: 'src/resources/views/layouts', 
     partialsDir: ['src/resources/views/partials',],
