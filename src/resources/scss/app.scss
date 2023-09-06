@@ -1,9 +1,37 @@
 @import 'variables';
 
-h1 {
-    color: blue;
+// h1 {
+//     color: blue;
+// }
+
+// h2 {
+//     color: $color-green;
+// }
+
+// .course {
+//     height: 400px;
+// }
+
+.course__img {
+    height: 180px;
 }
 
-h2  {
-    color: $color-green;
+.course__body--name {
+    height: 48px;
+    color: black;
+}
+
+.course__body a {
+    text-decoration: none;
+}
+
+.course__body--description {
+    height: 100px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    // text-overflow: ellipsis;
+    // white-space: normal;
+    // overflow: hidden;
 }
