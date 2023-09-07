@@ -17,9 +17,76 @@
                     <td>{{this.level}}</td>
                     <td>{{this.createdAt}}</td>
                     <td><a href="/courses/{{this._id}}/update" type="button" class="btn btn-success">Update</a></td>
-                    <td><a href="#" type="button" class="btn btn-danger">Remove</a></td>
+                    <td><a href="#" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-coures-modal" data-bs-id="{{this._id}}">Remove</a></td>
                 </tr>
             {{/each}}
         </tbody>
     </table>
 </div>
+
+{{!-- comfirm delete course --}}
+
+<!-- Modal -->
+<div class="modal fade" id="delete-coures-modal" tabindex="-1" aria-labelledby="delete-coures-modal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Remove course</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to remove course <b class="name-course-remove"></b>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="btn-delete-course">Delete</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+{{!-- Delete hidden form --}}
+<form name="form-delete-course" action="" method="POST"></form>
+
+<script>
+    function handeSubmitDeleteCourse() {
+        // xử lý dữ liệu được truyền bằng data-bs-*: https://getbootstrap.com/docs/5.2/components/modal/
+        const deleteCouresModal = document.getElementById('delete-coures-modal')
+        deleteCouresModal.addEventListener('show.bs.modal', event => {
+            // Button that triggered the modal on table
+            const button = event.relatedTarget
+            // Extract info from data-bs-* attributes
+            const recipient = button.getAttribute('data-bs-id')
+            // If necessary, you could initiate an AJAX request here
+            // and then do the updating in a callback.
+            
+            const btnDeleteCourse = document.querySelector('#btn-delete-course')
+            const formDeleteCourse = document.forms['form-delete-course']
+
+            btnDeleteCourse.addEventListener('click', () => {
+                formDeleteCourse.action = '/courses/' + recipient + '?_method=DELETE'
+                formDeleteCourse.submit()
+            })
+        })
+    }
+
+    // Cach lay gia tri cua mot cot trong hang duoc click
+    function confimRemoveCourseModal() {
+        const table = document.querySelector("table");
+
+        table.addEventListener("click", function(event) {
+            const target = event.target;
+            const row = target.closest("tr");
+            // Update the modal's content.
+            document.querySelector('.name-course-remove').textContent = row.cells[1].textContent
+        });
+    }
+
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        confimRemoveCourseModal()
+        handeSubmitDeleteCourse()
+    })
+
+
+</script>
