@@ -10,7 +10,6 @@ const Course = new Schema({
     videoId: { type: String, required: true, default: 'None', max: 600},
     level: { type: String, required: true, default: 'None', max: 600},
     image: { type: String, required: true, default: 'None', max: 255},
-    // slug: { type: String, unique: true},
     slug: { type: String, slugSchema: { slug: 'name', unique: true }},
 }, {
     // createAt: { type: Date, required: true, default: Date.now },

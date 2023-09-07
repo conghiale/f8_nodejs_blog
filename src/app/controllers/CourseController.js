@@ -1,5 +1,6 @@
 const Course = require('../models/Course')
 const mongoose = require('../../util/mongoose')
+const { response } = require('express')
 
 class CourseController {
     show(req, res, next) {
@@ -8,7 +9,7 @@ class CourseController {
         .catch(next)
     }
 
-    // // [GET] /courses/create
+    // [GET] /courses/create
     create(req, res, next) {
         res.render('courses/create')
     }
@@ -29,6 +30,20 @@ class CourseController {
             next(error);
         });
 
+    }
+
+    // [GET] /courses/:id/update
+    edit(req, res, next) {
+        Course.findOne({_id: req.params.id})
+        .then(course => res.render('courses/update', { course: mongoose.mongooseToObject(course)}))
+        .catch(next)
+    }
+
+    // [PUT] /courses/:id
+    update(req, res, next) {
+        Course.findByIdAndUpdate(req.params.id, req.body)
+        .then(() => res.redirect('/me/stored/courses'))
+        .catch(next)
     }
 }
 

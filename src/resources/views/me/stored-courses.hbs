@@ -1,0 +1,25 @@
+<div class="mt-4">
+    <h3>My Course</h3>
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Level</th>
+                <th scope="col" colspan="3">CreateAt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each courses}}
+                <tr>
+                    <th scope="row">{{sum @index 1}}</th>
+                    <td>{{this.name}}</td>
+                    <td>{{this.level}}</td>
+                    <td>{{this.createdAt}}</td>
+                    <td><a href="/courses/{{this._id}}/update" type="button" class="btn btn-success">Update</a></td>
+                    <td><a href="#" type="button" class="btn btn-danger">Remove</a></td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

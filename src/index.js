@@ -1,5 +1,6 @@
 const express = require('express')
 const {create} = require('express-handlebars')
+const methodOverride = require('method-override')
 const routes = require('./routes')
 const path = require('path')
 const app = express()
@@ -20,12 +21,19 @@ app.use(express.urlencoded({
 // config to get data from client send data with method POST and type Json
 app.use(express.json())
 
+// override using a query value
+app.use(methodOverride('_method'))
+
 // config handlebars
 const hbs = create({
     layoutsDir: 'src/resources/views/layouts', 
     partialsDir: ['src/resources/views/partials',],
     defaultLayout: 'main',
     extname: '.hbs', 
+
+    helpers: {
+        sum: (a, b) => a + b, 
+    }
 })
 
 // templates engine
