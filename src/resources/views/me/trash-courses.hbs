@@ -1,19 +1,15 @@
 <form class="mt-4 my--course--page" name="container-form" method="POST" action="/courses/handle-form-actions">
-    <h3>My Course</h3>
-    <a href="/me/trash/courses">
-        <i class="fas fa-trash icon--trash"> ({{countDocumentsDeleted}}) </i> 
+    <h3>The course has been deleted</h3>
+    <a href="/me/stored/courses">
+        <i class="fas fa-caret-left"></i>
+        My Courses
     </a>
-    <div class="input-group mb-3 mt-3 w-50 d-flex align-items-center">
-        <div class="form-check me-3">
-            <input class="form-check-input" type="checkbox" value="" id="check_course_all">
-            <label class="form-check-label" for="check_course_all">
-                Check all
-            </label>
-        </div>
 
+    <div class="input-group mb-3 mt-3 w-25 d-flex align-items-center">
         <select class="form-select" id="" name="actions" aria-label="Example select with button addon" required>
             <option value="">...Action...</option>
-            <option value="delete">Remove</option>
+            <option value="restore">Restore</option>
+            <option value="delete_force">Delete</option>
         </select>
         <button class="btn btn-outline-secondary disabled btn_action_submit" type="submit" >Action</button>
     </div>
@@ -21,7 +17,11 @@
     <table class="table mt-3">
         <thead>
             <tr>
-                <th></th>
+                <th>
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="checkbox" value="" id="check_course_all_deleted">
+                    </div>
+                </th>
                 <th scope="col">#</th>
                 <th scope="col">
                     Name
@@ -32,8 +32,8 @@
                     {{{sortable 'level' _sort}}}
                 </th>
                 <th scope="col" colspan="3">
-                    CreateAt
-                    {{{sortable 'createAt' _sort}}}
+                    DeletedAt
+                    {{{sortable 'deletedAt' _sort}}}
                 </th>
             </tr>
         </thead>
@@ -48,16 +48,16 @@
                     <th scope="row">{{sum @index 1}}</th>
                     <td class="col-md-3">{{this.name}}</td>
                     <td class="col-md-2">{{this.level}}</td>
-                    <td class="col-md-5">{{this.createdAt}}</td>
-                    <td><a href="/courses/{{this._id}}/update" type="button" class="btn btn-success">Update</a></td>
-                    <td><a href="#" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-coures-modal" data-bs-id="{{this._id}}">Remove</a></td>
+                    <td class="col-md-5">{{this.deletedAt}}</td>
+                    <td><a href="#" type="button" class="btn btn-success btn-restore" data-bs-id="{{this._id}}">Restore</a></td>
+                    <td><a href="#" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-coures-modal" data-bs-id="{{this._id}}">Delete</a></td>
                 </tr>
 
             {{else}}
                 <tr>
                     <td colspan="6" class="text-center">
-                        You haven't uploaded any courses. 
-                        <a href="/courses/create">Upload course</a>
+                        No courses have been deleted.
+                        <a href="/me/stored/courses">My course</a>
                     </td>
                 </tr>
             {{/each}}
@@ -87,7 +87,7 @@
 </div>
 
 {{!-- Delete hidden form --}}
-<form name="form-delete-course" action="" method="POST"></form>
+<form name="form-course" action="" method="POST"></form>
 
 <script>
     function handeSubmitDeleteCourse() {
@@ -102,11 +102,11 @@
             // and then do the updating in a callback.
             
             const btnDeleteCourse = document.querySelector('#btn-delete-course')
-            const formDeleteCourse = document.forms['form-delete-course']
+            const formCourse = document.forms['form-course']
 
             btnDeleteCourse.addEventListener('click', () => {
-                formDeleteCourse.action = '/courses/' + recipient + '?_method=DELETE'
-                formDeleteCourse.submit()
+                formCourse.action = '/courses/' + recipient + '/force?_method=DELETE'
+                formCourse.submit()
             })
         })
     }
@@ -123,45 +123,61 @@
         });
     }
 
-    function handleCheckCourses() {
-        const checkCoureseAll = document.querySelector('#check_course_all')
-        const checkCourseItems = Array.from(document.querySelectorAll('input[name="courseIds[]"]'))
-        const containerForm = document.forms['container-form']
-        let sumCheckCoureseItems = 0
+    // Khoi phuc course deleted
+    function restoreCourse() {
+        const btn_restores = document.querySelectorAll('.btn-restore')
+        for(let btn_restore of btn_restores) {
+            btn_restore.addEventListener('click', event => {
+                event.preventDefault()
+                
+                const button = event.target
+                const recipient = button.getAttribute('data-bs-id')
+                const formCourse = document.forms['form-course']
 
-        // change check_course_all
-        checkCoureseAll.addEventListener('change', (event) => {
-            target = event.target
-            let isCheckCourseAll = target.checked
-            checkCourseItems.map((item) => item.checked = isCheckCourseAll)
+                formCourse.action = '/courses/' + recipient + '/restore?_method=PATCH'
+                formCourse.submit()
+            })
+        }
+    }
+
+    //handle checkbox course deleted change
+    function handleCheckCourses() {
+        const check_course_all_deleted = document.querySelector('#check_course_all_deleted')
+        const check_course_items_deleted = Array.from(document.querySelectorAll('input[name="courseIds[]"]'))
+
+        // change check_course_all_deleted
+        check_course_all_deleted.addEventListener('change', (event) => {
+            const target = event.target
+            let isCheckCourseAllDeleted = target.checked
+            check_course_items_deleted.map((item) => item.checked = isCheckCourseAllDeleted)
             renderACtionBtnSubmit()
         })
 
-        // change course item
-        checkCourseItems.map(item => {item.addEventListener('change', (event) => {
-            // Sum all course item checked
-            sumCheckCoureseItems = checkCourseItems.filter((item) => item.checked).length
-            checkCoureseAll.checked = (sumCheckCoureseItems === checkCourseItems.length)
+        // change chech_course_items_deleted
+        check_course_items_deleted.map((item) => item.addEventListener('change', (event) => {
+            let count_checked_course_items = check_course_items_deleted.filter((item) => item.checked).length
+            check_course_all_deleted.checked = (count_checked_course_items === check_course_items_deleted.length)
             renderACtionBtnSubmit()
-        })})
+        }))
 
-           
     }
 
     // Re-render button Action
     function renderACtionBtnSubmit() {
         const btnActionSubmit = document.querySelector('.btn_action_submit')
-        const sumCheckCoureseItems = document.querySelectorAll('input[name="courseIds[]"]:checked').length
+        const count_checked_course_items = document.querySelectorAll('input[name="courseIds[]"]:checked').length
+        //let count_checked_course_items = check_course_items_deleted.filter((item) => item.checked).length
 
-        if (sumCheckCoureseItems > 0)
-            btnActionSubmit.classList.remove("disabled")
+        if (count_checked_course_items > 0)
+            btnActionSubmit.classList.remove('disabled')
         else
-            btnActionSubmit.classList.add("disabled")
+            btnActionSubmit.classList.add('disabled')
     }
     
     document.addEventListener("DOMContentLoaded", () => {
         confimRemoveCourseModal()
         handeSubmitDeleteCourse()
+        restoreCourse()
         handleCheckCourses()
     })
 

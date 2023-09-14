@@ -18,8 +18,7 @@ class CourseController {
     store(req, res, next) {
         // You can use a Model to create new documents using `new`:
         const formData = req.body
-        formData.image = `https://i.ytimg.com/vi/${req.body.videoId}/hqdefault.jpg`
-        formData.slug = 'demo'
+        formData.image = `https://i.ytimg.com/vi/${req.body.videoId}/maxresdefault.jpg`
         const course = new Course(formData);
 
         course.save()
@@ -48,9 +47,46 @@ class CourseController {
 
     // [DELETE] /courses/:id
     delete(req, res, next) {
+        Course.delete({_id: req.params.id})
+        .then(() => res.redirect('back'))
+        .catch(next)
+    }
+
+    // [DELETE] /courses/:id/force
+    force_delete(req, res, next) {
         Course.deleteOne({_id: req.params.id})
         .then(() => res.redirect('back'))
         .catch(next)
+    }
+
+    // [PATCH] /courses/:id/restore
+    restore(req, res, next) {
+        Course.restore({_id: req.params.id})
+        .then(() => res.redirect('back'))
+        .catch(next)
+    }
+
+    // [POST] /courses/handle-form-actions
+    handleFormActions(req, res, next) {
+        switch (req.body.actions) {
+            case 'delete':
+                Course.delete({_id: {$in: req.body.courseIds}})
+                .then(() => res.redirect('back'))
+                .catch(next)
+                break
+            case 'restore':
+                Course.restore({_id: {$in: req.body.courseIds}})
+                .then(() => res.redirect('back'))
+                .catch(next)
+                break
+            case 'delete_force':
+                Course.deleteOne({_id: {$in: req.body.courseIds}})
+                .then(() => res.redirect('back'))
+                .catch(next)
+                break
+            default:
+                res.send('Actions not valid')
+        }
     }
 }
 

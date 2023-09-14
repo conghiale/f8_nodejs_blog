@@ -1,5 +1,9 @@
 @import 'variables';
 
+.btn-color-RINE-N-SHINE {
+    color: $color-RINE-N-SHINE;
+}
+
 .user--avatar {
     width: 2rem;
     height: 2rem;
@@ -16,7 +20,7 @@
     color: black;
 }
 
-.course__body a {
+a {
     text-decoration: none;
 }
 
@@ -29,4 +33,12 @@
     // text-overflow: ellipsis;
     // white-space: normal;
     // overflow: hidden;
+}
+
+.icon--trash {
+    color: black;
+}
+
+.icon--trash:hover {
+    color: rgb(80, 82, 86);
 }
