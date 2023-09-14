@@ -2,7 +2,8 @@ const express = require('express')
 const {create} = require('express-handlebars')
 const methodOverride = require('method-override')
 const routes = require('./routes')
-const SortMiddleware = require('./app/middleware/SortMiddleware')
+const sortMiddleware = require('./app/middleware/sortMiddleware')
+const helpersHanlebars = require('./helpers/handlebars')
 const path = require('path')
 const app = express()
 const port = 3000
@@ -32,33 +33,7 @@ const hbs = create({
     partialsDir: ['src/resources/views/partials',],
     defaultLayout: 'main',
     extname: '.hbs', 
-
-    helpers: {
-        sum: (a, b) => a + b, 
-        sortable: (field, sort) => {
-            // check sort field
-            const sortField = (field === sort.column ? sort.type : 'default')
-
-            const types = {
-                default: 'asc',
-                desc: 'asc',
-                asc: 'desc',
-            }
-
-            const icons = {
-                default: 'fas fa-sort',
-                desc: 'fas fa-sort-amount-down',
-                asc: 'fas fa-sort-amount-down-alt',
-            }
-
-            const type = types[sort.type]
-            const icon = icons[sortField]
-
-            return `<a href="?_sort=true&column=${field}&type=${type}">
-                <i class="${icon}"></i>
-            </a>`
-        },
-    }
+    helpers: helpersHanlebars,
 })
 
 // templates engine
@@ -67,7 +42,7 @@ app.set('view engine', 'hbs')
 app.set('views', path.join(__dirname, 'resources', 'views')) // resourse/views
 
 // Check sort before into routers
-app.use(SortMiddleware)
+app.use(sortMiddleware)
 
 // Routes init
 routes(app)
